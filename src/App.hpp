@@ -18,7 +18,13 @@ public:
 
 private: 
     void Render();
+    glm::vec2 rotateVec2(const glm::vec2& vec, const glm::vec2& center, const float& angle);
+
     int _width;
     int _height;
     double _previousTime;
+
+    GLuint _textureId;
+
+    float _imageAngle;
 };
