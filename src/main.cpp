@@ -1,3 +1,7 @@
+#define GLFW_INCLUDE_NONE
+#include "GLFW/glfw3.h"
+#include "glad/glad.h"
+
 #include "App.hpp"
 
 static App& get_app(GLFWwindow* window) {
@@ -53,6 +57,13 @@ int main() {
     glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int width, int height) {
         get_app(window).size_callback(width, height);
     });
+
+    // Force call the size_callback of the app to set the right viewport and projection matrix
+    {
+        int width, height;
+        glfwGetWindowSize(window, &width, &height);
+        app.size_callback(width, height);
+    }
 
     // Loop until the user closes the window
     while (!glfwWindowShouldClose(window)) {

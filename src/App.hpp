@@ -1,12 +1,14 @@
 #pragma once
-#define GLFW_INCLUDE_NONE
-#include "GLFW/glfw3.h"
+
+#include <string>
+
 #include "glad/glad.h"
 #include <glm/glm.hpp>
 
 class App {
 public:
     App();
+    App(float viewSize);
     void Update();
     
     // callbacks users input
@@ -16,7 +18,8 @@ public:
     void cursor_position_callback(double xpos, double ypos);
     void size_callback(int width, int height);
 
-private: 
+private:
+    void LoadImage(const std::string& imagePath);
     void Render();
     glm::vec2 rotateVec2(const glm::vec2& vec, const glm::vec2& center, const float& angle);
 
@@ -27,4 +30,5 @@ private:
     GLuint _textureId;
 
     float _imageAngle;
+    float _viewSize;
 };
