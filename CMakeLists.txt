@@ -44,11 +44,3 @@ target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 add_library(glad third_party/glad/src/glad.c)
 target_include_directories(glad PUBLIC third_party/glad/include)
 target_link_libraries(${PROJECT_NAME} PUBLIC glad)
-
-# ---Add glm---
-target_include_directories(${PROJECT_NAME} PUBLIC third_party/glm)
-
-# --- Add Std_image ---
-add_library(stb_image third_party/stb/stb_image.cpp third_party/stb/stb_image_write.cpp)
-target_include_directories(${PROJECT_NAME} PUBLIC third_party/stb)
-target_link_libraries(${PROJECT_NAME} PUBLIC stb_image)
