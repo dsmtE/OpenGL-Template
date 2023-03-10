@@ -40,7 +40,7 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(third_party/glfw)
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 
-# ---Add glad---
-add_library(glad third_party/glad/src/glad.c)
-target_include_directories(glad PUBLIC third_party/glad/include)
-target_link_libraries(${PROJECT_NAME} PUBLIC glad)
+# ---Add OPENGL & GLU ---
+find_package(OpenGL REQUIRED)
+message(STATUS "OpenGL libraries : ${OPENGL_LIBRARIES}")
+target_link_libraries(${PROJECT_NAME} PRIVATE ${OPENGL_LIBRARIES})

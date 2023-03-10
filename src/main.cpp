@@ -1,6 +1,7 @@
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
-#include "glad/glad.h"
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <iostream>
 
 /* Minimal time wanted between two images */
@@ -37,10 +38,6 @@ int main() {
     // Make the window's context current
     glfwMakeContextCurrent(window);
 
-    // Intialize glad (loads the OpenGL functions)
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        return -1;
-    }
 
     glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
         std::cout << "key pressed: " << key << ", " << scancode << std::endl;
