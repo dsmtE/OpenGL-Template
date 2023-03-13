@@ -1,15 +1,85 @@
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <iostream>
+
+#include "3D_tools.h"
+#include "draw_scene.h"
+
+/* Window properties */
+static const unsigned int WINDOW_WIDTH = 1000;
+static const unsigned int WINDOW_HEIGHT = 1000;
+static const char WINDOW_TITLE[] = "TD04 Ex01";
+static float aspectRatio = 1.0;
 
 /* Minimal time wanted between two images */
 static const double FRAMERATE_IN_SECONDS = 1. / 30.;
 
+/* IHM flag */
+static int flag_animate_rot_scale = 0;
+static int flag_animate_rot_arm = 0;
+
 /* Error handling function */
 void onError(int error, const char* description) {
     std::cout << "GLFW Error: " << description << std::endl;
+}
+
+void onWindowResized(GLFWwindow* window, int width, int height)
+{
+	aspectRatio = width / (float) height;
+
+	glViewport(0, 0, width, height);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(60.0,aspectRatio,Z_NEAR,Z_FAR);
+	glMatrixMode(GL_MODELVIEW);
+}
+
+void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (action == GLFW_PRESS) {
+		switch(key) {
+			case GLFW_KEY_A :
+			case GLFW_KEY_ESCAPE :
+				glfwSetWindowShouldClose(window, GLFW_TRUE);
+				break;
+			case GLFW_KEY_L :
+				glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+				break;
+			case GLFW_KEY_P :
+				glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+				break;
+			case GLFW_KEY_R :
+				flag_animate_rot_arm = 1-flag_animate_rot_arm;
+				break;
+			case GLFW_KEY_T :
+				flag_animate_rot_scale = 1-flag_animate_rot_scale;
+				break;
+			case GLFW_KEY_KP_9 :
+				if(dist_zoom<100.0f) dist_zoom*=1.1;
+				std::cout << "Zoom is " << dist_zoom << std::endl;
+				break;
+			case GLFW_KEY_KP_3 :
+				if(dist_zoom>1.0f) dist_zoom*=0.9;
+				std::cout << "Zoom is " << dist_zoom << std::endl;
+				break;
+			case GLFW_KEY_UP :
+				if (phy>2) phy -= 2;
+				std::cout << "Phy is " << phy << std::endl;
+				break;
+			case GLFW_KEY_DOWN :
+				if (phy<=88.) phy += 2;
+				std::cout << "Phy is " << phy << std::endl;
+				break;
+			case GLFW_KEY_LEFT :
+				theta -= 5;
+				break;
+			case GLFW_KEY_RIGHT :
+				theta += 5;
+				break;
+			default:
+				std::cout << "Touche non gérée (" << key << ")" << std::endl;
+		}
+	}
 }
 
 int main() {
@@ -29,7 +99,8 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #endif
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "OpenGLTemplate", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
+	
     if (!window) {
         glfwTerminate();
         return -1;
@@ -38,10 +109,10 @@ int main() {
     // Make the window's context current
     glfwMakeContextCurrent(window);
 
+    glfwSetWindowSizeCallback(window,onWindowResized);
+	glfwSetKeyCallback(window, onKey);
 
-    glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-        std::cout << "key pressed: " << key << ", " << scancode << std::endl;
-    });
+    onWindowResized(window,WINDOW_WIDTH,WINDOW_HEIGHT);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -49,17 +120,40 @@ int main() {
 		/* Get time (in second) at loop beginning */
 		double startTime = glfwGetTime();
 
-		/* Render here */
-		glClear(GL_COLOR_BUFFER_BIT);
+		/* Cleaning buffers and setting Matrix Mode */
+		glClearColor(0.2,0.0,0.0,0.0);
 
-        // render exemple quad
-        glColor3f(1.0f, 0.0f, 0.0f);
-        glBegin(GL_QUADS);
-            glVertex2f(-0.5f, -0.5f);
-            glVertex2f(0.5f, -0.5f);
-            glVertex2f(0.5f, 0.5f);
-            glVertex2f(-0.5f, 0.5f);
-        glEnd();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		setCamera();
+
+		/* Initial scenery setup */
+		glPushMatrix();
+		glTranslatef(0.0,0.0,-0.01);
+		glScalef(10.0,10.0,1.0);
+		glColor3f(0.0,0.0,0.1);
+		drawSquare();
+		glPopMatrix();
+		
+		// rotating spheres exemple
+		glPushMatrix();
+		glScalef(2.0,2.0,2.0);
+		glRotatef(startTime*90.0,0.0,0.0,1.0);
+		glColor3f(1.0,0.0,0.0);
+		glTranslatef(0.0,4.0,0.0);
+		drawSphere();
+
+		glPushMatrix();
+		glRotatef(startTime*50.0,0.0,0.0,1.0);
+		glTranslatef(0.0,2.0,0.0);
+		glScalef(0.3, 0.3, 0.3);
+		drawSphere();
+		
+		glPopMatrix();
+
+		/* Scene rendering */
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
